@@ -1,0 +1,20 @@
+{
+    "dashboard": {
+        "title": "시스템 대시보드",
+        "description": "PC 관리 시스템의 전체 현황 및 실시간 상태를 확인하세요.",
+        "refresh": "새로고침",
+        "add_pc": "PC 등록",
+        "total_pc": "전체 PC",
+        "online_pc": "온라인 PC",
+        "offline_pc": "오프라인 PC",
+        "maintenance_pc": "점검 중 PC",
+        "inventory": "PC 인벤토리",
+        "view_all": "전체보기",
+        "last_updated": "최근 업데이트",
+        "status": {
+            "online": "온라인",
+            "offline": "오프라인",
+            "maintenance": "점검 중"
+        }
+    }
+}
