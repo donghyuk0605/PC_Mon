@@ -1,5 +1,5 @@
 // pages/_app.tsx
-import { Sidebar } from "@/components/ui/sidebar";
+import Sidebar from "@/components/ui/sidebar";
 import type { AppProps } from "next/app";
 
 import "./styles/globals.css"; // 꼭 있어야 Tailwind가 적용됨
