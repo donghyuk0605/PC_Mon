@@ -19,6 +19,7 @@ import {
   HardDrive,
   Home,
   LogOut,
+  Menu,
   Monitor,
   Package,
   Plus,
@@ -27,6 +28,7 @@ import {
   Shield,
   Terminal,
   Users,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -51,6 +53,7 @@ interface Section {
 
 export const Sidebar: React.FC = React.memo(() => {
   const pathname = usePathname().replace(/\/$/, "");
+  const [collapsed, setCollapsed] = useState(false);
   const [pcCount, setPcCount] = useState(0);
   const [vulnCount, setVulnCount] = useState(0);
   const [patchCount, setPatchCount] = useState(0);
@@ -245,32 +248,61 @@ export const Sidebar: React.FC = React.memo(() => {
   };
 
   return (
-    <nav className="flex flex-col h-full w-72 bg-slate-800 border-r border-slate-700">
+    <nav
+      className={`flex flex-col h-full ${
+        collapsed ? "w-20" : "w-72"
+      } bg-slate-800 border-r border-slate-700 transition-all duration-300`}
+    >
       {/* ヘッダー */}
       <div className="bg-slate-900 border-b border-slate-700">
-        <div className="flex items-center gap-3 h-16 px-6">
-          <div className="relative">
-            <div className="p-2 bg-gradient-to-br from-blue-500 to-violet-600 rounded-lg shadow-lg">
-              <Server className="w-5 h-5 text-white" />
+        <div className="flex items-center justify-between h-16 px-6">
+          <div
+            className={`flex items-center gap-3 ${
+              collapsed ? "justify-center flex-1" : ""
+            }`}
+          >
+            <div className="relative">
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-violet-600 rounded-lg shadow-lg">
+                <Server className="w-5 h-5 text-white" />
+              </div>
+              {criticalIssues > 0 && (
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+              )}
             </div>
-            {criticalIssues > 0 && (
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+            {!collapsed && (
+              <div>
+                <h1 className="text-lg font-semibold text-white flex items-center gap-2">
+                  PCMon
+                  <span className="px-1.5 py-0.5 text-xs font-medium bg-amber-500/20 text-amber-400 rounded">
+                    BETA
+                  </span>
+                </h1>
+                <p className="text-xs text-slate-400">Beta v0.1.0</p>
+              </div>
             )}
           </div>
-          <div>
-            <h1 className="text-lg font-semibold text-white">PCMon</h1>
-            <p className="text-xs text-slate-400">開発バージョンv0.1</p>
-          </div>
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="text-slate-400 hover:text-white hover:bg-slate-700 p-2 rounded-lg transition-all duration-200"
+          >
+            {collapsed ? (
+              <Menu className="w-5 h-5" />
+            ) : (
+              <X className="w-5 h-5" />
+            )}
+          </button>
         </div>
 
         {/* クイックステータス */}
-        <div className="px-6 py-3 flex items-center justify-between text-xs">
-          <div className="flex items-center gap-2">
-            <Circle className="w-2 h-2 fill-green-500 text-green-500" />
-            <span className="text-slate-300">システム稼働中</span>
+        {!collapsed && (
+          <div className="px-6 py-3 flex items-center justify-between text-xs">
+            <div className="flex items-center gap-2">
+              <Circle className="w-2 h-2 fill-green-500 text-green-500" />
+              <span className="text-slate-300">システム稼働中</span>
+            </div>
+            <span className="text-slate-500">最終更新: 5分前</span>
           </div>
-          <span className="text-slate-500">最終更新: 5分前</span>
-        </div>
+        )}
       </div>
 
       {/* メニューコンテンツ */}
@@ -305,16 +337,18 @@ export const Sidebar: React.FC = React.memo(() => {
                       >
                         {section.icon}
                       </div>
-                      <div className="text-left">
-                        <span className="block">{section.title}</span>
-                        {section.description && (
-                          <span className="text-xs text-slate-500 font-normal">
-                            {section.description}
-                          </span>
-                        )}
-                      </div>
+                      {!collapsed && (
+                        <div className="text-left">
+                          <span className="block">{section.title}</span>
+                          {section.description && (
+                            <span className="text-xs text-slate-500 font-normal">
+                              {section.description}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
-                    {section.items.length > 0 && (
+                    {!collapsed && section.items.length > 0 && (
                       <ChevronRight
                         className={`w-4 h-4 text-slate-500 transition-transform ${
                           isOpen ? "rotate-90" : ""
@@ -323,7 +357,7 @@ export const Sidebar: React.FC = React.memo(() => {
                     )}
                   </CollapsibleTrigger>
 
-                  <CollapsibleContent>
+                  <CollapsibleContent className={collapsed ? "hidden" : ""}>
                     <ul className="mt-1 space-y-0.5 ml-3">
                       {section.items.map((item) => {
                         const isActive = pathname === item.href;
@@ -346,34 +380,38 @@ export const Sidebar: React.FC = React.memo(() => {
                                     </div>
                                   )}
                                 </div>
-                                <span className="flex items-center gap-2">
-                                  {item.label}
-                                  {item.isNew && (
-                                    <span className="px-1.5 py-0.5 text-xs font-medium bg-green-500/20 text-green-400 rounded">
-                                      NEW
-                                    </span>
-                                  )}
-                                  {item.isExperimental && (
-                                    <span className="px-1.5 py-0.5 text-xs font-medium bg-purple-500/20 text-purple-400 rounded">
-                                      BETA
-                                    </span>
-                                  )}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                {item.badge != null && (
-                                  <span
-                                    className={`px-2 py-0.5 text-xs font-medium rounded-full border ${getBadgeStyle(
-                                      item.status
-                                    )}`}
-                                  >
-                                    {item.badge}
+                                {!collapsed && (
+                                  <span className="flex items-center gap-2">
+                                    {item.label}
+                                    {item.isNew && (
+                                      <span className="px-1.5 py-0.5 text-xs font-medium bg-green-500/20 text-green-400 rounded">
+                                        NEW
+                                      </span>
+                                    )}
+                                    {item.isExperimental && (
+                                      <span className="px-1.5 py-0.5 text-xs font-medium bg-purple-500/20 text-purple-400 rounded">
+                                        BETA
+                                      </span>
+                                    )}
                                   </span>
                                 )}
-                                {isActive && (
-                                  <ExternalLink className="w-3 h-3 text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                )}
                               </div>
+                              {!collapsed && (
+                                <div className="flex items-center gap-2">
+                                  {item.badge != null && (
+                                    <span
+                                      className={`px-2 py-0.5 text-xs font-medium rounded-full border ${getBadgeStyle(
+                                        item.status
+                                      )}`}
+                                    >
+                                      {item.badge}
+                                    </span>
+                                  )}
+                                  {isActive && (
+                                    <ExternalLink className="w-3 h-3 text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                  )}
+                                </div>
+                              )}
                             </Link>
                           </li>
                         );
@@ -390,22 +428,26 @@ export const Sidebar: React.FC = React.memo(() => {
       {/* フッター */}
       <div className="border-t border-slate-700 bg-slate-900">
         <div className="p-4">
-          <div className="flex items-center gap-3 mb-3 px-3 py-2 rounded-lg bg-slate-800">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-violet-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-              A
+          {!collapsed && (
+            <div className="flex items-center gap-3 mb-3 px-3 py-2 rounded-lg bg-slate-800">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-violet-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                A
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-white">管理者</p>
+                <p className="text-xs text-slate-400">admin@pcmon.local</p>
+              </div>
             </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-white">管理者</p>
-              <p className="text-xs text-slate-400">admin@pcmon.local</p>
-            </div>
-          </div>
+          )}
 
           <Button
             variant="ghost"
-            className="w-full justify-start text-slate-300 hover:text-white hover:bg-slate-800 border-slate-700"
+            className={`w-full justify-start text-slate-300 hover:text-white hover:bg-slate-800 border-slate-700 ${
+              collapsed ? "px-0 justify-center" : ""
+            }`}
           >
-            <LogOut className="w-4 h-4 mr-2" />
-            ログアウト
+            <LogOut className="w-4 h-4" />
+            {!collapsed && <span className="ml-2">ログアウト</span>}
           </Button>
         </div>
       </div>
