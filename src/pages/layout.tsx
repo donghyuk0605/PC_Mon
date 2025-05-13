@@ -1,4 +1,4 @@
-import { Sidebar } from "@/components/ui/sidebar"; // 메뉴 컴포넌트
+import Sidebar from "@/components/ui/sidebar";
 import { NextIntlClientProvider } from "next-intl";
 import { usePathname } from "next/navigation";
 import { ReactNode } from "react";
