@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "lib/firebase";
 import {
   AlertCircle,
@@ -41,7 +41,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type NewPcData = {
   name: string;
@@ -53,6 +53,12 @@ type NewPcData = {
   notes: string;
   type: string;
   lastActive: string;
+};
+
+type UserOption = {
+  id: string;
+  name: string;
+  username: string;
 };
 
 export default function CreatePcPage() {
@@ -73,11 +79,29 @@ export default function CreatePcPage() {
   const [saving, setSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [advancedMode, setAdvancedMode] = useState(false);
+  const [userOptions, setUserOptions] = useState<UserOption[]>([]);
 
   const [errors, setErrors] = useState({
     name: false,
     status: false,
   });
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const snapshot = await getDocs(collection(db, "users"));
+      const users = snapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          name: data.name,
+          username: data.username,
+        };
+      });
+      setUserOptions(users);
+    };
+
+    fetchUsers();
+  }, []);
 
   const validateForm = () => {
     const newErrors = {
@@ -311,14 +335,23 @@ export default function CreatePcPage() {
           <CardContent className="pt-6 space-y-4">
             <div className="space-y-2">
               <Label htmlFor="assignedUser">担当者</Label>
-              <Input
-                id="assignedUser"
+              <Select
                 value={formData.assignedUser}
-                onChange={(e) =>
-                  handleInputChange("assignedUser", e.target.value)
+                onValueChange={(value) =>
+                  handleInputChange("assignedUser", value)
                 }
-                placeholder="担当者名"
-              />
+              >
+                <SelectTrigger id="assignedUser">
+                  <SelectValue placeholder="担当者を選択" />
+                </SelectTrigger>
+                <SelectContent>
+                  {userOptions.map((user) => (
+                    <SelectItem key={user.id} value={user.id}>
+                      {user.name} (@{user.username})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
