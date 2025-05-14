@@ -42,6 +42,7 @@ interface MenuItem {
   status?: "critical" | "warning" | "success" | "info" | "default";
   isNew?: boolean;
   isExperimental?: boolean;
+  isInDevelopment?: boolean;
 }
 
 interface Section {
@@ -49,6 +50,7 @@ interface Section {
   icon: React.ReactNode;
   items: MenuItem[];
   description?: string;
+  isInDevelopment?: boolean;
 }
 
 export const Sidebar: React.FC = React.memo(() => {
@@ -108,6 +110,7 @@ export const Sidebar: React.FC = React.memo(() => {
       title: "ダッシュボード",
       icon: <Home className="w-4 h-4" />,
       description: "システム全体の概要",
+      isInDevelopment: true,
       items: [
         {
           label: "システム概要",
@@ -151,6 +154,7 @@ export const Sidebar: React.FC = React.memo(() => {
       title: "セキュリティ管理",
       icon: <Shield className="w-4 h-4" />,
       description: "脅威と脆弱性の監視",
+      isInDevelopment: true,
       items: [
         {
           label: "セキュリティ状況",
@@ -199,12 +203,39 @@ export const Sidebar: React.FC = React.memo(() => {
     {
       title: "レポート",
       icon: <FileText className="w-4 h-4" />,
-      items: [],
+      isInDevelopment: true,
+      items: [
+        {
+          label: "レポート生成",
+          href: "/reports/generate",
+          icon: <FileText className="w-4 h-4" />,
+        },
+      ],
     },
     {
       title: "システム設定",
       icon: <Settings className="w-4 h-4" />,
-      items: [],
+      isInDevelopment: true,
+      items: [
+        {
+          label: "基本設定",
+          href: "/settings/general",
+          icon: <Settings className="w-4 h-4" />,
+        },
+      ],
+    },
+    {
+      title: "開発ツール",
+      icon: <Terminal className="w-4 h-4" />,
+      description: "テストやデバッグ用の開発機能",
+      items: [
+        {
+          label: "ダミーデータ入力",
+          href: "/dev/seed-data",
+          icon: <Plus className="w-4 h-4" />,
+          isExperimental: true,
+        },
+      ],
     },
   ];
 
@@ -339,7 +370,14 @@ export const Sidebar: React.FC = React.memo(() => {
                       </div>
                       {!collapsed && (
                         <div className="text-left">
-                          <span className="block">{section.title}</span>
+                          <span className="block flex items-center gap-2">
+                            {section.title}
+                            {section.isInDevelopment && (
+                              <span className="px-1.5 py-0.5 text-xs font-medium bg-orange-500/20 text-orange-400 rounded">
+                                準備中
+                              </span>
+                            )}
+                          </span>
                           {section.description && (
                             <span className="text-xs text-slate-500 font-normal">
                               {section.description}
@@ -391,6 +429,11 @@ export const Sidebar: React.FC = React.memo(() => {
                                     {item.isExperimental && (
                                       <span className="px-1.5 py-0.5 text-xs font-medium bg-purple-500/20 text-purple-400 rounded">
                                         BETA
+                                      </span>
+                                    )}
+                                    {item.isInDevelopment && (
+                                      <span className="px-1.5 py-0.5 text-xs font-medium bg-orange-500/20 text-orange-400 rounded">
+                                        準備中
                                       </span>
                                     )}
                                   </span>

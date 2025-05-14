@@ -1,5 +1,6 @@
 // lib/firebase.ts
-import { initializeApp } from "firebase/app";
+import { getApp, getApps, initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -12,5 +13,8 @@ const firebaseConfig = {
   measurementId: "G-KYCQB7LXLH",
 };
 
-const app = initializeApp(firebaseConfig);
+// ✅ 이미 초기화된 앱이 있으면 재사용하고, 없으면 초기화
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+
 export const db = getFirestore(app);
+export const auth = getAuth(app);
